@@ -1,6 +1,8 @@
 import 'package:api_crud/CustomTexts/Texts.dart';
 import 'package:api_crud/NoteList/note_Modify.dart';
+import 'package:api_crud/Services/notes_services.dart';
 import "package:flutter/material.dart";
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'note_Delete.dart';
 import 'package:api_crud/model/NoteForListing.dart';
@@ -16,47 +18,14 @@ class NoteList extends StatefulWidget{
 }
 class NoteListState extends State<NoteList>{
 
-  final notes = [
+  NoteService get service => GetIt.instance<NoteService>();
 
-    NoteForListing(
-      noteID : "1",
-      createDateTime: DateTime.now(),
-      latestDateTime: DateTime.now(),
-      noteTitle: "Note1"
-    ),
-    NoteForListing(
-        noteID : "2",
-        createDateTime: DateTime.now(),
-        latestDateTime: DateTime.now(),
-        noteTitle: "Note2"
-    ),
-    NoteForListing(
-        noteID : "3",
-        createDateTime: DateTime.now(),
-        latestDateTime: DateTime.now(),
-        noteTitle: "Note3"
-    ),
-    NoteForListing(
-        noteID : "4",
-        createDateTime: DateTime.now(),
-        latestDateTime: DateTime.now(),
-        noteTitle: "Note4"
-    ),
-    NoteForListing(
-        noteID : "5",
-        createDateTime: DateTime.now(),
-        latestDateTime: DateTime.now(),
-        noteTitle: "Note5"
-    ),
-    NoteForListing(
-        noteID : "6",
-        createDateTime: DateTime.now(),
-        latestDateTime: DateTime.now(),
-        noteTitle: "Note6"
-    ),
+  List <NoteForListing> notes= [];
 
-  ];
-
+  void initState(){
+    notes = service.getNoteList();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +46,15 @@ class NoteListState extends State<NoteList>{
     ),
 
     body: ListView.separated(
+
+
       separatorBuilder: (_,context) => Divider(
         height: 1,
         color: Colors.green,
     ),
+
+      itemCount: notes.length,
+
 
       itemBuilder: (_,index){
         return Dismissible(
@@ -131,7 +105,6 @@ class NoteListState extends State<NoteList>{
         );
       },
 
-      itemCount: notes.length,
     ),
 
   );
