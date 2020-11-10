@@ -1,6 +1,7 @@
 import 'package:api_crud/CustomTexts/Texts.dart';
 import 'package:api_crud/NoteList/note_Modify.dart';
 import 'package:api_crud/Services/notes_services.dart';
+import 'package:api_crud/model/api_response.dart';
 import "package:flutter/material.dart";
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,14 +19,40 @@ class NoteList extends StatefulWidget{
 }
 class NoteListState extends State<NoteList>{
 
-  NoteService get service => GetIt.instance<NoteService>();
+  NoteService get service => GetIt.instance<NoteService> ();
 
-  List <NoteForListing> notes= [];
+  APIResponse <List<NoteForListing>> _apiResponse;
+  bool _isloading = false;
 
-  void initState(){
-    notes = service.getNoteList();
+  String formatDateTime (DateTime dateTime){
+    return "${
+    dateTime.day
+    }/${
+    dateTime.month
+    }/${
+    dateTime.year
+    }";
+  }
+
+
+  @override
+  void initState() {
+    _fetchNotes();
     super.initState();
   }
+
+  _fetchNotes() async{
+    setState(() {
+      _isloading= true;
+    });
+
+    _apiResponse = await service.getNotesList();
+
+    setState(() {
+      _isloading = false;
+    });
+
+}
 
   @override
   Widget build(BuildContext context) {
@@ -45,67 +72,88 @@ class NoteListState extends State<NoteList>{
       child: Icon(Icons.add),
     ),
 
-    body: ListView.separated(
+    body: Builder(
+      builder: (_){
+        if(_isloading){
+         return Center(
+            child: CircularProgressIndicator(),
+
+          );
+        }
+
+        else if(_apiResponse.error){
+          return Center(
+            child:Center(
+            child: Custom_Texts("There is some error in the API. ${_apiResponse.error.toString()}", 24),
+            ) ,
+          );
+        }
+        return    ListView.separated(
 
 
-      separatorBuilder: (_,context) => Divider(
-        height: 1,
-        color: Colors.green,
-    ),
+          separatorBuilder: (_,context) => Divider(
+            height: 1,
+            color: Colors.green,
+          ),
 
-      itemCount: notes.length,
+          itemCount: _apiResponse.data.length,
 
 
-      itemBuilder: (_,index){
-        return Dismissible(
-          key: ValueKey(notes[index].noteID),
+          itemBuilder: (_,index){
+            return Dismissible(
+              key: ValueKey(_apiResponse.data[index].noteID),
 
-          // Exception: A dismissed Dismissible widget... will be occurring as the onDismissed() is yet to be completed...
-          direction: DismissDirection.startToEnd,
-          onDismissed: (direction){
+              // Exception: A dismissed Dismissible widget... will be occurring as the onDismissed() is yet to be completed...
+              direction: DismissDirection.startToEnd,
+              onDismissed: (direction){
 
-        },
+              },
 
-        confirmDismiss: (direction) async{
-            final result = await showDialog(context: context ,
-        builder: (_) => NoteDelete());
-            return result;
-        },
+              confirmDismiss: (direction) async{
+                final result = await showDialog(context: context ,
+                    builder: (_) => NoteDelete());
+                return result;
+              },
 
-        background: Container(
-            color: Colors.red,
-            padding: EdgeInsets.all(10),
-            child: Align(child: Icon(Icons.delete_sweep),),
-            ),
-        child: ListTile(
-              title: Text(
-              notes[index].noteTitle,
-              style: GoogleFonts.poppins(
-              textStyle: TextStyle(
+              background: Container(
+                color: Colors.red,
+                padding: EdgeInsets.all(10),
+                child: Align(child: Icon(Icons.delete_sweep),),
+              ),
+              child: ListTile(
+                title: Text(
+                  _apiResponse.data[index].noteTitle,
+                  style: GoogleFonts.poppins(
+                      textStyle: TextStyle(
 
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: 24.0
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 24.0
 
-                    )
+                      )
                   ),
 
-                 ),
+                ),
 
-              subtitle: Custom_Texts("Last edited on ${notes[index].latestDateTime}" , 18.0),
+                subtitle: Custom_Texts("Last edited on ${_apiResponse.data[index].latestDateTime}" , 18.0),
 
-              onTap: (){
-                Navigator.of(context).push(
-                MaterialPageRoute(
-              builder: (_) => NotesModify(noteID : notes[index].noteID)
-              )
-                );
-              },
-          ),
+                onTap: (){
+                  Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => NotesModify(noteID : _apiResponse.data[index].noteID)
+                      )
+                  );
+                },
+              ),
+            );
+          },
+
         );
       },
+    )
 
-    ),
+
+
 
   );
   }
