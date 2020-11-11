@@ -24,16 +24,10 @@ class NoteListState extends State<NoteList>{
   APIResponse <List<NoteForListing>> _apiResponse;
   bool _isloading = false;
 
-  String formatDateTime (DateTime dateTime){
-    return "${
-    dateTime.day
-    }/${
-    dateTime.month
-    }/${
-    dateTime.year
-    }";
-  }
 
+  String formatDateTime(DateTime dateTime) {
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+  }
 
   @override
   void initState() {
@@ -81,14 +75,11 @@ class NoteListState extends State<NoteList>{
           );
         }
 
-        else if(_apiResponse.error){
-          return Center(
-            child:Center(
-            child: Custom_Texts("There is some error in the API. ${_apiResponse.error.toString()}", 24),
-            ) ,
-          );
+        if (_apiResponse.error) {
+          return Center(child: Text(_apiResponse.errorMessage));
         }
-        return    ListView.separated(
+
+        return  ListView.separated(
 
 
           separatorBuilder: (_,context) => Divider(
@@ -140,7 +131,7 @@ class NoteListState extends State<NoteList>{
                 onTap: (){
                   Navigator.of(context).push(
                       MaterialPageRoute(
-                          builder: (_) => NotesModify(noteID : _apiResponse.data[index].noteID)
+                          builder: (_) => NoteModify(noteID : _apiResponse.data[index].noteID)
                       )
                   );
                 },

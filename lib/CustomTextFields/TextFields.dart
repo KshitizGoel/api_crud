@@ -7,9 +7,10 @@ class CustomTextFields extends StatelessWidget{
   
   final String labelText;
   final String hintText;
+  final TextEditingController controller;
   final TextInputType textInputType;
   
-  CustomTextFields(this.hintText , this.labelText, this.textInputType);
+  CustomTextFields(this.hintText , this.labelText, this.textInputType, this.controller) ;
   
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,7 @@ class CustomTextFields extends StatelessWidget{
     return Padding(
       padding: EdgeInsets.all(10.0),
       child: TextFormField(
+        controller: controller,
         keyboardType: textInputType,
         decoration: InputDecoration(
           labelText: labelText,

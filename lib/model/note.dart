@@ -1,15 +1,14 @@
-import 'package:flutter/material.dart';
-
-class NoteForListing {
-  String noteID, noteTitle;
+class Note{
+  String noteID , noteTitle , noteContent;
   DateTime createDateTime , latestDateTime;
 
-  NoteForListing({this.noteID , this.noteTitle , this.createDateTime , this.latestDateTime});
+  Note({this.noteID, this.latestDateTime , this.noteTitle, this.createDateTime, this.noteContent});
 
-  factory NoteForListing.fromJson(Map<String,dynamic> item){
-    return NoteForListing(
+  factory Note.fromJson(Map<String , dynamic> item){
+    return Note(
       noteID: item['noteID'],
       noteTitle: item['noteTitle'],
+      noteContent: item['noteContent'],
       createDateTime: DateTime.parse(item['createDateTime']),
       latestDateTime: item['latestEditDateTime'] != null
           ? DateTime.parse(item['latestEditDateTime'])
